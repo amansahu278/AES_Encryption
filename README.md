@@ -1,2 +1,125 @@
 # AES_Encryption
-AES-128 bit encryption using C
+My Implementation of AES-128 bit encryption using C, Cryptography Assignment, Sem 5.
+
+---
+## 128 - bit AES  
+  Main Processes:
+  1.  Encryption
+  2.  Key schedule
+    
+  * ### Encryption:
+        
+        State = X
+        1. AddRoundKey(State, Key0)
+        2. for r = 1 to (Nr - 1)
+            a. SubBytes(State, S-box)
+            b. ShiftRows(State)
+            c. MixColumns(State)
+            d. AddRoundKey(State, Keyr)
+        end for
+        1. SubBytes(State, S-box)
+        2. ShiftRows(State)
+        3. AddRoundKey(State, KeyNr)
+        Y = State
+
+  * ### Key schedule:
+  
+      ```
+      For 128 - bit AES there will be a total of 11 keys (10 round keys + 1 original key), each of 16 bytes, 
+      having 4 words of 4 bytes each
+      (Imagine all words are lined up next to each other)
+
+      We repeat this for 10 times, K1 -> K10
+      For each Wi out of the 4 words in a key:
+          if i % 4 == 0:
+              selected = w[i-1]
+              selected = lshift the selected word by 1
+              selecte = subbyte the word
+              w[i] =  selected ^ w[i-4] ^ rcon[i] (which is (rcon[i], 0, 0, 0)T)
+          else:
+              wi = w[i-1] ^ w[i - 4]
+      ```
+
+  ### TODO: 
+  1. [x] Expansion of key
+  2. [x] SubBytes
+  3. [x] ShiftRows
+  4. [x] MixColumns
+
+  ### Things to be copied directly:
+  1. sbox
+  2. rcon
+  3. Math function for mix columns as it is too complicated/long to implement by self
+      - Probably could be done given it wasn't 2:45 am and i wasnt so sleepy
+
+  ### About the functions: (Pun intended) 
+  (Yep, 3:00 am humour hits hard)
+  1. AddRoundKey
+      - XOR of round key to the state
+
+  2. SubBytes
+      - Substitute the words using the sbox
+
+  3. Shift rows
+      - LShift the ith row by i, i={0,1,2,3} 
+
+  4. MixColumns 
+      ( HAHAHAHAHAAHA! SEEMS SIMPLE, BUT THERE IS MORE TO IT THAN JUST MULTIPLICATION - Frustrated me coming back to add this)
+      ```
+      - The matrix of a particular Galois Field.
+      Example: 3x^3 + x^2 + x + 2 would have the matrix
+      [
+          2, 3, 1, 1,
+          1, 2, 3, 1,
+          1, 1, 2, 3,
+          3, 1, 1, 2
+      ]
+      if a word of the state is (b1, b2, b3, b4)T
+      then the mixColumns operation would produce
+               b1 = (b1 X 2) ^ (b2 X 3) ^ (b3 X 1) ^ (b4 X 1)
+      similarly,
+              b2 = (b1 X 1) ^ (b2 X 2) ^ (b3 X 3) ^ (b4 X 2)
+      etc, modulo (x^4 + 1)
+      ```
+      The above multiplication is performed over a Galois Field.
+      
+      For each term, we perform lookups on various tables. So that it is appropriately modulo'd.
+      Refer: http://www.infosecwriters.com/text_resources/pdf/AESbyExample.pdf for better explanation
+      
+      Or instead, copy the function from the internet which does the same.
+     
+      
+## Important points to remember:
+  - Every word of the State or the Key are taken column wise
+  - Similarly, operations are also done in the same orientation
+
+##### Procedure Followed:
+      - Made all the side functions and tested their working
+      - Implemented the key expansion algorithm
+          * Checked the working by taking the same key as in video mentioned above and manually checking if same results are recreated
+      - Implemented the encryption algorithm
+      - Problems encountered, undesired output
+          * Print the state for every step showed that my initial fault was that i was doing a simple multiplication for mixColumns, 
+            i did not take into consideration the restrictions of the Field.
+          * Played around, trying to implement it.
+          * Googled around, turns out it is a rather difficult calculation, so i decided to borrow the function from wikipedia, 
+            an alternative would have been to copy the lookup tables, but the former seems more dynamic
+      - After that, i was able to recreate the same outputs and intermediates as per the video for that key and plain text
+
+### References: 
+   * Class notes / ppt
+   * https://www.lri.fr/~fmartignon/documenti/systemesecurite/5-AES.pdf
+   * https://www.comparitech.com/blog/information-security/what-is-aes-encryption/#How_does_AES_work
+   * https://www.youtube.com/watch?v=gP4PqVGudtg
+   
+   * MixColumns
+      * http://www.angelfire.com/biz7/atleast/mix_columns.pdf
+      * https://en.wikipedia.org/wiki/Rijndael_MixColumns
+      * http://www.infosecwriters.com/text_resources/pdf/AESbyExample.pdf
+
+### Future Works:
+  * [ ] Create a separate header file
+  * [ ] Extend this work for 192, 256 bit keys as well
+
+
+### Author: Aman Sahu
