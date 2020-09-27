@@ -221,8 +221,7 @@ void shiftRows(){ //Works fine
     }
 }
 
-void gmix_column(unsigned char *r) { //Works fine
-    // Copied from the internet. Source: wikipedia
+void gmix_column(unsigned char *r) {
     unsigned char a[4];
     unsigned char b[4];
     unsigned char c;
@@ -314,22 +313,22 @@ void createRoundKeys(){ //Works fine
 }
 
 void encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
-//     int len = strlen(PT);
+    int len = strlen(PT);
     int currLen = 0;
     int writeLen = 0;
-    int n = 1; // Only one block
-//     int n = len/16;
+    int n = len/16;
     int keyIdx = 0;
-//     if( 16 * n < len ){
-//         n++;
-//     }
+    printf("PT Length: %d,\n", len);
+    if( 16 * n < len ){
+        n++;
+    }
     
     for(int i = 0; i<n; i++){
         keyIdx = 0;
         for(int c = 0; c<4; c++){
             for(int r = 0; r<4; r++){
                 if(currLen > strlen(PT)){
-                    state[r][c] = ' ';
+                    state[r][c] = 'x';
                     currLen ++;
                 } else {
                     state[r][c] = PT[currLen ++];
@@ -345,7 +344,7 @@ void encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
         }
         printf("\n");
         addRoundKey(roundKeys[keyIdx ++]);
-        printf("Start after round 0:\n");
+        printf("Start after 0:\n");
         for(int r = 0; r<4; r++){
             for(int c = 0 ; c<4; c++){
                 printf("%x ", state[r][c]);
@@ -355,10 +354,34 @@ void encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
         printf("\n");
         for(; keyIdx < 10; keyIdx ++){
             subBytesState();
+            // printf("After subbytes:\n");
+            // for(int r = 0; r<4; r++){
+            //     for(int c = 0 ; c<4; c++){
+            //         printf("%x ", state[r][c]);
+            //     }
+            //     printf("\n");
+            // }
+            // printf("\n");
             shiftRows();
+            // printf("After shift rows:\n");
+            // for(int r = 0; r<4; r++){
+            //     for(int c = 0 ; c<4; c++){
+            //         printf("%x ", state[r][c]);
+            //     }
+            //     printf("\n");
+            // }
+            // printf("\n");
             mixColumns();
+            // printf("After mixcolumns:\n");
+            // for(int r = 0; r<4; r++){
+            //     for(int c = 0 ; c<4; c++){
+            //         printf("%x ", state[r][c]);
+            //     }
+            //     printf("\n");
+            // }
+            // printf("\n");
             addRoundKey(roundKeys[keyIdx]);
-            printf("State after round %d:\n", keyIdx);
+            printf("State after %d:\n", keyIdx);
             for(int r = 0; r<4; r++){
                 for(int c = 0 ; c<4; c++){
                     printf("%x ", state[r][c]);
@@ -376,7 +399,7 @@ void encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
                 CT[writeLen ++] = state[r][c];
             }
         }
-        printf("State after round 10:\n");
+        printf("State after 10:\n");
         for(int r = 0; r<4; r++){
             for(int c = 0 ; c<4; c++){
                 printf("%x ", state[r][c]);
@@ -385,6 +408,7 @@ void encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
         }
         printf("\n");
     }
+    CT[writeLen] = '\0';
 }
 
 void initState(){
@@ -415,19 +439,24 @@ int main(){
 
     initState();
     createRoundKeys();
-    unsigned char PT[] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
-    unsigned char CT[16];
+    unsigned char PT[112];
+    printf("Enter the plain text: ");
+    fgets(PT, 100, stdin);
+    PT[strlen(PT)-1] = '\0';
+    unsigned char CT[112];
+    
     printf("PT is: ");
-    for(int i = 0; i< 16; i++){
+    for(int i = 0; i< strlen(PT); i++){
         printf("%x ", PT[i]);
     }
     printf("\n");
     encryptPt(PT, CT);
     printf("CT is: ");
-    for(int i = 0; i< 16; i++){
+    for(int i = 0; i< strlen(CT); i++){
         printf("%x ", CT[i]);
     }
     printf("\n");
+    // printf("%s\n", CT);
     disposeState();
     disposeRoundKeys();
     return 0;
