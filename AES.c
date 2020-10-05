@@ -221,7 +221,8 @@ void shiftRows(){ //Works fine
     }
 }
 
-void gmix_column(unsigned char *r) {
+void gmix_column(unsigned char *r) { // Works fine
+    // Copied from the internet
     unsigned char a[4];
     unsigned char b[4];
     unsigned char c;
