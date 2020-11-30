@@ -56,7 +56,7 @@
         - LShift the ith row by i, i={0,1,2,3} 
     
     4. MixColumns 
-        ( HAHAHAHAHAAHA! SEEMS SIMPLE, BUT THERE IS MORE TO IT THAN JUST MULTIPLICATION - Frustrated me at 3:00 am)
+        
         - The matrix of a particular Galois Field.
         Example: 3x^3 + x^2 + x + 2 would have the matrix
         [
@@ -122,7 +122,7 @@ void gmix_column(unsigned char *);
 void mixColumns();
 void getWord(unsigned char **, int , unsigned char *);
 void createRoundKeys();
-void encryptPt(unsigned char [], unsigned char []);
+int encryptPt(unsigned char [], unsigned char []);
 void initState();
 void disposeState();
 void disposeRoundKeys();
@@ -313,7 +313,7 @@ void createRoundKeys(){ //Works fine
     }
 }
 
-void encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
+int encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
     int len = strlen(PT);
     int currLen = 0;
     int writeLen = 0;
@@ -336,23 +336,23 @@ void encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
                 }
             }
         }
-        printf("Org State is:\n");
-        for(int r = 0; r<4; r++){
-            for(int c = 0 ; c<4; c++){
-                printf("%x ", state[r][c]);
-            }
-            printf("\n");
-        }
-        printf("\n");
+        // printf("Org State is:\n");
+        // for(int r = 0; r<4; r++){
+        //     for(int c = 0 ; c<4; c++){
+        //         printf("%x ", state[r][c]);
+        //     }
+        //     printf("\n");
+        // }
+        // printf("\n");
         addRoundKey(roundKeys[keyIdx ++]);
-        printf("Start after 0:\n");
-        for(int r = 0; r<4; r++){
-            for(int c = 0 ; c<4; c++){
-                printf("%x ", state[r][c]);
-            }
-            printf("\n");
-        }
-        printf("\n");
+        // printf("Start after 0:\n");
+        // for(int r = 0; r<4; r++){
+        //     for(int c = 0 ; c<4; c++){
+        //         printf("%x ", state[r][c]);
+        //     }
+        //     printf("\n");
+        // }
+        // printf("\n");
         for(; keyIdx < 10; keyIdx ++){
             subBytesState();
             // printf("After subbytes:\n");
@@ -382,16 +382,16 @@ void encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
             // }
             // printf("\n");
             addRoundKey(roundKeys[keyIdx]);
-            printf("State after %d:\n", keyIdx);
-            for(int r = 0; r<4; r++){
-                for(int c = 0 ; c<4; c++){
-                    printf("%x ", state[r][c]);
-                }
-                printf("\n");
-            }
-            printf("\n");
+            // printf("State after %d:\n", keyIdx);
+            // for(int r = 0; r<4; r++){
+            //     for(int c = 0 ; c<4; c++){
+            //         printf("%x ", state[r][c]);
+            //     }
+            //     printf("\n");
+            // }
+            // printf("\n");
         }
-        printf("\n");
+        // printf("\n");
         subBytesState();
         shiftRows();
         addRoundKey(roundKeys[keyIdx]);
@@ -400,16 +400,17 @@ void encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
                 CT[writeLen ++] = state[r][c];
             }
         }
-        printf("State after 10:\n");
-        for(int r = 0; r<4; r++){
-            for(int c = 0 ; c<4; c++){
-                printf("%x ", state[r][c]);
-            }
-            printf("\n");
-        }
-        printf("\n");
+        // printf("State after 10:\n");
+        // for(int r = 0; r<4; r++){
+        //     for(int c = 0 ; c<4; c++){
+        //         printf("%x ", state[r][c]);
+        //     }
+        //     printf("\n");
+        // }
+        // printf("\n");
     }
     CT[writeLen] = '\0';
+    return n;
 }
 
 void initState(){
@@ -451,13 +452,16 @@ int main(){
         printf("%x ", PT[i]);
     }
     printf("\n");
-    encryptPt(PT, CT);
+
+    int n = encryptPt(PT, CT);
+    
+    printf("CT length is: %d\n", n*16);
     printf("CT is: ");
-    for(int i = 0; i< strlen(CT); i++){
+    for(int i = 0; i<n*16 ; i++){
         printf("%x ", CT[i]);
     }
     printf("\n");
-    // printf("%s\n", CT);
+    // printf("CT: %s\n", CT);
     disposeState();
     disposeRoundKeys();
     return 0;
