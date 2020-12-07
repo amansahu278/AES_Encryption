@@ -135,6 +135,12 @@ unsigned char key[] = {
         0x15, 0xd2, 0x15, 0x4f,
         0x16, 0xa6, 0x88, 0x3c
     };
+// unsigned char key[] = {
+//         'k', ' ', ' ', 'i',
+//         'e', 'a', 'b', 'n',
+//         'y', 'r', 'o', 'g',
+//         's', 'e', 'r', 0x01
+//     };
 unsigned char ***roundKeys;
 
 unsigned char mixField[4][4] = { //UNUSED
@@ -258,9 +264,52 @@ void shiftRows(){ //Works fine
 }
 
 void inverseShiftRows(){
-    for(int i = 1; i<4; j++){
+    for(int i = 1; i<4; i++){
         shiftRow(state[4-i], i);
     }
+}
+
+unsigned char GMul(unsigned char a, unsigned char b){   //Wikipedia
+    unsigned char p = 0x00;
+
+    for(int counter = 0; counter<8; counter++){
+        if((b&1)!=0){
+            p^=a;
+        }
+        unsigned char hi_bit_set = (a & 0x80) != 0;
+        a <<= 1;
+        if(hi_bit_set){
+            a ^= 0x1b;
+        }
+        b >>= 1;
+    }
+    return p;
+}
+
+void gmix_word(unsigned char *r){   // Works fine
+    unsigned char b[4];
+
+    for (int c = 0; c < 4; c++) {
+        b[c] = r[c];
+    }
+    r[0] = GMul(0x02, b[0]) ^ GMul(0x03, b[1]) ^ b[2] ^ b[3];
+    r[1] = b[0] ^ GMul(0x02, b[1]) ^ GMul(0x03, b[2]) ^ b[3];
+    r[2] = b[0] ^ b[1] ^ GMul(0x02, b[2]) ^ GMul(0x03, b[3]);
+    r[3] = GMul(0x03, b[0]) ^ b[1] ^ b[2] ^ GMul(0x02, b[3]);
+
+}
+
+void inverse_gmix_word(unsigned char *r){
+    unsigned char b[4];
+
+    for (int c = 0; c < 4; c++) {
+        b[c] = r[c];
+    }
+    r[0] = GMul(0x0e, b[0]) ^ GMul(0x0b, b[1]) ^ GMul(0x0d, b[2]) ^ GMul(0x09, b[3]);
+    r[1] = GMul(0x09, b[0]) ^ GMul(0x0e, b[1]) ^ GMul(0x0b, b[2]) ^ GMul(0x0d, b[3]);
+    r[2] = GMul(0x0d, b[0]) ^ GMul(0x09, b[1]) ^ GMul(0x0e, b[2]) ^ GMul(0x0b, b[3]);
+    r[3] = GMul(0x0b, b[0]) ^ GMul(0x0d, b[1]) ^ GMul(0x09, b[2]) ^ GMul(0x0e, b[3]);
+
 }
 
 void gmix_column(unsigned char *r) { // Works fine
@@ -288,10 +337,21 @@ void gmix_column(unsigned char *r) { // Works fine
 
 void mixColumns(){  // Works fine
     unsigned char word[4];
-    
     for(int col = 0; col<4; col++){
         getWord(state, col, word);
         gmix_column(word);
+        // gmix_word(word);
+        for(int row = 0; row<4; row++){
+            state[row][col] = word[row];
+        }
+    }
+}
+
+void invMixColumns(){  // Works fine
+    unsigned char word[4];
+    for(int col = 0; col<4; col++){
+        getWord(state, col, word);
+        inverse_gmix_word(word);
         for(int row = 0; row<4; row++){
             state[row][col] = word[row];
         }
@@ -361,7 +421,8 @@ int encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
     int writeLen = 0;
     int n = len/16;
     int keyIdx = 0;
-    printf("PT Length: %d,\n", len);
+    int end = 0;
+    
     if( 16 * n < len ){
         n++;
     }
@@ -371,87 +432,74 @@ int encryptPt(unsigned char PT[], unsigned char CT[]){ //Works fine
         for(int c = 0; c<4; c++){
             for(int r = 0; r<4; r++){
                 if(currLen > strlen(PT)){
-                    state[r][c] = 'x';
+                    if(!end){
+                        end = !end;
+                        state[r][c] = 0x80;
+                    } else {
+                        state[r][c] = 0x00;
+                    }
                     currLen ++;
                 } else {
                     state[r][c] = PT[currLen ++];
                 }
             }
         }
-        // printf("Org State is:\n");
-        // for(int r = 0; r<4; r++){
-        //     for(int c = 0 ; c<4; c++){
-        //         printf("%x ", state[r][c]);
-        //     }
-        //     printf("\n");
-        // }
-        // printf("\n");
+
         addRoundKey(roundKeys[keyIdx ++]);
-        // printf("Start after 0:\n");
-        // for(int r = 0; r<4; r++){
-        //     for(int c = 0 ; c<4; c++){
-        //         printf("%x ", state[r][c]);
-        //     }
-        //     printf("\n");
-        // }
-        // printf("\n");
+
         for(; keyIdx < 10; keyIdx ++){
             subBytesState();
-            // printf("After subbytes:\n");
-            // for(int r = 0; r<4; r++){
-            //     for(int c = 0 ; c<4; c++){
-            //         printf("%x ", state[r][c]);
-            //     }
-            //     printf("\n");
-            // }
-            // printf("\n");
             shiftRows();
-            // printf("After shift rows:\n");
-            // for(int r = 0; r<4; r++){
-            //     for(int c = 0 ; c<4; c++){
-            //         printf("%x ", state[r][c]);
-            //     }
-            //     printf("\n");
-            // }
-            // printf("\n");
             mixColumns();
-            // printf("After mixcolumns:\n");
-            // for(int r = 0; r<4; r++){
-            //     for(int c = 0 ; c<4; c++){
-            //         printf("%x ", state[r][c]);
-            //     }
-            //     printf("\n");
-            // }
-            // printf("\n");
             addRoundKey(roundKeys[keyIdx]);
-            // printf("State after %d:\n", keyIdx);
-            // for(int r = 0; r<4; r++){
-            //     for(int c = 0 ; c<4; c++){
-            //         printf("%x ", state[r][c]);
-            //     }
-            //     printf("\n");
-            // }
-            // printf("\n");
         }
-        // printf("\n");
+     
         subBytesState();
         shiftRows();
         addRoundKey(roundKeys[keyIdx]);
+     
         for(int c = 0; c<4; c++){
             for(int r = 0; r<4; r++){
                 CT[writeLen ++] = state[r][c];
             }
         }
-        // printf("State after 10:\n");
-        // for(int r = 0; r<4; r++){
-        //     for(int c = 0 ; c<4; c++){
-        //         printf("%x ", state[r][c]);
-        //     }
-        //     printf("\n");
-        // }
-        // printf("\n");
     }
-    CT[writeLen] = '\0';
+    return n;
+}
+
+int decryptPt(unsigned char CT[], unsigned char DT[], int n){ //Works fine
+    int len = strlen(CT);
+    int currLen = 0;
+    int writeLen = 0;
+    // int n = len/16;
+    int keyIdx;
+
+    for(int i = 0; i<n; i++){
+        keyIdx = 10;
+        for(int c = 0; c<4; c++){
+            for(int r = 0; r<4; r++){    
+                state[r][c] = CT[currLen ++];
+            }
+        }
+        
+        addRoundKey(roundKeys[keyIdx --]);
+        inverseShiftRows();
+        invSubBytesState();
+
+        for(; keyIdx >= 1; keyIdx --){
+            addRoundKey(roundKeys[keyIdx]);
+            invMixColumns();
+            inverseShiftRows();
+            invSubBytesState();
+        }
+        
+        addRoundKey(roundKeys[keyIdx]);
+        for(int c = 0; c<4; c++){
+            for(int r = 0; r<4; r++){
+                DT[writeLen ++] = state[r][c];
+            }
+        }
+    }
     return n;
 }
 
@@ -484,26 +532,38 @@ int main(){
     initState();
     createRoundKeys();
     unsigned char PT[112];
+    // unsigned char PT[112] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
     printf("Enter the plain text: ");
     fgets(PT, 100, stdin);
     PT[strlen(PT)-1] = '\0';
     unsigned char CT[112];
+    unsigned char DT[112];
     
     printf("PT is: ");
     for(int i = 0; i< strlen(PT); i++){
         printf("%x ", PT[i]);
     }
     printf("\n");
+    printf("\n");
 
     int n = encryptPt(PT, CT);
     
     printf("CT length is: %d\n", n*16);
-    printf("CT is: ");
+    printf("CT is: %s\n", CT);
     for(int i = 0; i<n*16 ; i++){
         printf("%x ", CT[i]);
     }
     printf("\n");
-    // printf("CT: %s\n", CT);
+printf("\n");
+    decryptPt(CT, DT, n);
+    
+    printf("DT length is: %ld\n", strlen(DT));
+    printf("DT is: %s\n", DT);
+    for(int i = 0; i<n*16 ; i++){
+        printf("%x ", DT[i]);
+    }
+    printf("\n");
+    printf("\n");
     disposeState();
     disposeRoundKeys();
     return 0;
