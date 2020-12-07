@@ -554,7 +554,7 @@ int main(){
         printf("%x ", CT[i]);
     }
     printf("\n");
-printf("\n");
+    printf("\n");
     decryptPt(CT, DT, n);
     
     printf("DT length is: %ld\n", strlen(DT));
