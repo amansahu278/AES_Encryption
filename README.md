@@ -1,6 +1,5 @@
-# AES_Encryption
-My Implementation of AES-128 bit encryption using C, Cryptography Assignment, Sem 5.
-
+# AES Encryption and Decryption
+AES encryption and decryption of inputted text. 
 ---
 ## 128 - bit AES  
   Main Processes:
