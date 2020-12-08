@@ -9,4 +9,4 @@ extern const unsigned char sbox[16][16];
 
 extern const unsigned char inv_sbox[16][16];
 
-extern const unsigned char rcon[10];
+extern const unsigned char rcon[255];
