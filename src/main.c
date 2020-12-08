@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <argp.h>
 #include "operations.h"
 
 unsigned char **state;
@@ -73,45 +74,112 @@ const unsigned char rcon[255] = {
     0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb
 };
 
-int main(){
-    mode  = 2;
+const char *argp_program_version =
+  "aes 1.0";
+const char *argp_program_bug_address =
+  "<a.man.cubes24@gmail.com>";
+
+/* Program documentation. */
+static char doc[] =
+  "AES Encryption and Decryption";
+
+/* A description of the arguments we accept. */
+static char args_doc[] = "Filepath";
+
+/* The options we understand. */
+static struct argp_option options[] = {
+  {"mode",  'm', "INT", 0, "Mode of operation: 0: 128bit, 1: 192bit, 2: 256bit" },
+  {"encrypt", 'e', 0, 0,  "Encrypt file" },
+  {"decrypt", 'd', 0, 0, "Decrypt file" },
+  { 0 }
+};
+
+/* Used by main to communicate with parse_opt. */
+struct arguments
+{
+  char *args[1];                /* arg1: Filename */
+  enum {M128bit, M192bit, M256bit} mode;
+  enum {encrypt, decrypt} operation;
+};
+
+/* Parse a single option. */
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  /* Get the input argument from argp_parse, which we
+     know is a pointer to our arguments structure. */
+  struct arguments *arguments = state->input;
+
+  switch (key)
+    {
+    case 'm':
+      arguments->mode = atoi(arg);
+      if(arguments->mode > 2 || arguments->mode < 0) return ARGP_ERR_UNKNOWN;
+      break;
+    case 'e':
+      arguments->operation = encrypt;
+      break;
+    case 'd':
+      arguments->operation = decrypt;
+      break;
+
+    case ARGP_KEY_ARG:
+      if (state->arg_num >= 1)
+        /* Too many arguments. */
+        argp_usage (state);
+
+      arguments->args[state->arg_num] = arg;
+
+      break;
+
+    case ARGP_KEY_END:
+      if (state->arg_num < 1)
+        /* Not enough arguments. */
+        argp_usage (state);
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+  return 0;
+}
+
+/* Our argp parser. */
+static struct argp argp = { options, parse_opt, args_doc, doc };
+
+int main(int argc, char **argv){
+    // taken in argument: encrypt or decrypt, Mode, Filename, output file name.
+
+    struct arguments arguments;
+    int resp;
+
+    /* Default values. */
+    arguments.mode = 0;
+    arguments.operation = 0;
+
+    /* Parse our arguments; every option seen by parse_opt will
+     be reflected in arguments. */
+    argp_parse (&argp, argc, argv, 0, 0, &arguments);
+
+    mode  = arguments.mode;
+
     initState();
-    char PT[112] = "../alarm.mp3";
-    char CT[112] = "../alarm.mp3_enc";
+    char PT[112] = "../yodel.mp4";
+    char CT[112] = "../yodel.mp4_enc";
     char DT[112];
-    
-    char flushe;
-    
-    // unsigned char PT[112] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
-    // printf("Enter the plain text: ");
-    // fgets(PT, 100, stdin);
-    // PT[strlen(PT)-1] = '\0';
     
     if(getKey() < 0){
         printf("Enter key of proper length\n");
         exit(1);
     }
     createRoundKeys();
-
-    // int n = encryptPt(PT);
     
-    // printf("Decryption:\n");
+    if(arguments.operation == encrypt){
+        resp = encryptPt(arguments.args[0]);
+    } else {
+        resp = decryptPt(arguments.args[0]);
+    }
     
-    // scanf("%c", &flushe);
-    // if(getKey() < 0){
-    //     printf("Enter key of proper length\n");
-    //     disposeState();
-    //     disposeRoundKeys();
-    //     exit(1);
-    // }
-    decryptPt(CT);
-    
-    // printf("DT length is: %ld\n", strlen(DT));
-    // printf("DT is: %s\n", DT);
-    // for(int i = 0; i<n*16 ; i++){
-    //     printf("%x ", DT[i]);
-    // }
-    // printf("\n");
     disposeState();
     disposeRoundKeys();
     return 0;

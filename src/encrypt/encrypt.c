@@ -9,7 +9,7 @@ int encryptPt(char path[]){ //Works fine
     
     in = fopen(path, "r");
     if(in == NULL){
-        printf("couldn't open file.\n");
+        printf("Couldn't open file.\n");
         return -1;
     }
     fseek(in, 0, SEEK_END);

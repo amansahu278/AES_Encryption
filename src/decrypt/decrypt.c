@@ -24,7 +24,7 @@ int decryptPt(char CT[]){ //Works fine
 
     FILE *in = fopen(CT, "r");
     if(in == NULL){
-        printf("couldn't open file.\n");
+        printf("Couldn't open file.\n");
         return -1;
     }
     
@@ -34,7 +34,7 @@ int decryptPt(char CT[]){ //Works fine
 
     strncpy(destName, CT, strlen(CT)-4);
     destName[strlen(CT)-4] = '\0';
-    printf("Decrypted name: %s", destName);
+    printf("Decrypted filename: %s", destName);
     FILE *out = fopen(destName, "w");
 
 
@@ -72,17 +72,6 @@ int decryptPt(char CT[]){ //Works fine
         fwrite((void *)toWrite, 1, 16, out);
     }
     fclose(out);
-    fclose(in);
-    in = fopen(destName, "r");
-    if(in == NULL){
-        printf("couldn't open file.\n");
-        return -1;
-    }
-    
-    fseek(in, 0, SEEK_END);
-    len = ftell(in);
-    printf("Length of the decrypted file was: %d", len);
-    fseek(in, 0, SEEK_SET);
     fclose(in);
     return n;
 }
