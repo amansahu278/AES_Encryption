@@ -18,6 +18,8 @@ void invMixColumns();
 void getWord(unsigned char **, int , unsigned char *);
 int getKey();
 void createRoundKeys();
+int encryptPt(unsigned char [], unsigned char []);
+int decryptPt(unsigned char [], unsigned char [], int);
 void initState();
 void disposeState();
 void disposeRoundKeys();
