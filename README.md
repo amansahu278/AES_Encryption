@@ -1,6 +1,18 @@
 # AES_Encryption
 AES Encryption and Decryption on any file.
 ---
+   ECB AES implementation for 128 bit, 192 bit and 256 bit key length. Works almost perfectly for all files.
+   // Decrypting an encrypted file leads to increase in size of the decrypted file by a few bits (because of padding bits). This is to be fixed soon.
+
+## How to use:
+  
+
+### Future Works:
+  1. [X] Various key sizes
+  2. [X] Change to file stream
+  3. [ ] Remove padding after decryption
+  4. [X] Arg parse
+  5. [ ] Add progress indicator
 
 
 ## Learn to do it yourself:
@@ -16,7 +28,7 @@ AES Encryption and Decryption on any file.
       * https://en.wikipedia.org/wiki/Rijndael_MixColumns
       * http://www.infosecwriters.com/text_resources/pdf/AESbyExample.pdf
    
-   * Padding
+   * Padding of plain text
       * https://www.cryptosys.net/pki/manpki/pki_paddingschemes.html
       * https://www.di-mgt.com.au/cryptopad.html#exampleaes
    
@@ -31,14 +43,5 @@ AES Encryption and Decryption on any file.
    * Miscellaneous
       * https://www.dummies.com/programming/c/how-to-share-variables-between-modules-when-programming-in-c/
       * https://stackoverflow.com/questions/1433204/how-do-i-use-extern-to-share-variables-between-source-files
-
-### Future Works:
-  1. [X] Various key sizes
-  2. [X] Change to file stream
-  3. [ ] Remove padding after decryption
-  4. [X] Arg parse
-  5. [ ] Add progress indicator
-
-
 
 ### Author: Aman Sahu
