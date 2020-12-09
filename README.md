@@ -6,7 +6,7 @@ AES Encryption and Decryption on any file.
 ## Learn to do it yourself:
 ### Resources: 
 
-    * What is AES
+   * What is AES
       * https://www.lri.fr/~fmartignon/documenti/systemesecurite/5-AES.pdf
       * https://www.comparitech.com/blog/information-security/what-is-aes-encryption/#How_does_AES_work
       * https://www.youtube.com/watch?v=gP4PqVGudtg
