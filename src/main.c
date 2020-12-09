@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <argp.h>
 #include "operations.h"
 
 unsigned char **state;
@@ -54,24 +55,118 @@ const unsigned char inv_sbox[16][16] = {
     {0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d}
 };
 
-const unsigned char rcon[10] = {
-    0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
+const unsigned char rcon[255] = {
+    0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 
+    0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 
+    0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 
+    0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 
+    0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 
+    0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 
+    0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 
+    0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 
+    0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 
+    0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 
+    0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 0xc6, 0x97, 0x35, 
+    0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 0x61, 0xc2, 0x9f, 
+    0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d, 0x01, 0x02, 0x04, 
+    0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36, 0x6c, 0xd8, 0xab, 0x4d, 0x9a, 0x2f, 0x5e, 0xbc, 0x63, 
+    0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd, 
+    0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb
 };
 
+const char *argp_program_version =
+  "aes 1.0";
+const char *argp_program_bug_address =
+  "<a.man.cubes24@gmail.com>";
 
-int main(){
+/* Program documentation. */
+static char doc[] =
+  "AES Encryption and Decryption";
+
+/* A description of the arguments we accept. */
+static char args_doc[] = "Filepath";
+
+/* The options we understand. */
+static struct argp_option options[] = {
+  {"mode",  'm', "INT", 0, "Mode of operation: 0: 128bit, 1: 192bit, 2: 256bit" },
+  {"encrypt", 'e', 0, 0,  "Encrypt file" },
+  {"decrypt", 'd', 0, 0, "Decrypt file" },
+  { 0 }
+};
+
+/* Used by main to communicate with parse_opt. */
+struct arguments
+{
+  char *args[1];                /* arg1: Filename */
+  enum {M128bit, M192bit, M256bit} mode;
+  enum {encrypt, decrypt} operation;
+};
+
+/* Parse a single option. */
+static error_t
+parse_opt (int key, char *arg, struct argp_state *state)
+{
+  /* Get the input argument from argp_parse, which we
+     know is a pointer to our arguments structure. */
+  struct arguments *arguments = state->input;
+
+  switch (key)
+    {
+    case 'm':
+      arguments->mode = atoi(arg);
+      if(arguments->mode > 2 || arguments->mode < 0) return ARGP_ERR_UNKNOWN;
+      break;
+    case 'e':
+      arguments->operation = encrypt;
+      break;
+    case 'd':
+      arguments->operation = decrypt;
+      break;
+
+    case ARGP_KEY_ARG:
+      if (state->arg_num >= 1)
+        /* Too many arguments. */
+        argp_usage (state);
+
+      arguments->args[state->arg_num] = arg;
+
+      break;
+
+    case ARGP_KEY_END:
+      if (state->arg_num < 1)
+        /* Not enough arguments. */
+        argp_usage (state);
+      break;
+
+    default:
+      return ARGP_ERR_UNKNOWN;
+    }
+  return 0;
+}
+
+/* Our argp parser. */
+static struct argp argp = { options, parse_opt, args_doc, doc };
+
+int main(int argc, char **argv){
+    // taken in argument: encrypt or decrypt, Mode, Filename, output file name.
+
+    struct arguments arguments;
+    int resp;
+
+    /* Default values. */
+    arguments.mode = 0;
+    arguments.operation = 0;
+
+    /* Parse our arguments; every option seen by parse_opt will
+     be reflected in arguments. */
+    argp_parse (&argp, argc, argv, 0, 0, &arguments);
+
+    mode  = arguments.mode;
 
     initState();
-    unsigned char PT[112];
-    unsigned char CT[112];
-    unsigned char DT[112];
-    
-    char flushe;
-    
-    // unsigned char PT[112] = {0x32, 0x43, 0xf6, 0xa8, 0x88, 0x5a, 0x30, 0x8d, 0x31, 0x31, 0x98, 0xa2, 0xe0, 0x37, 0x07, 0x34};
-    printf("Enter the plain text: ");
-    fgets(PT, 100, stdin);
-    PT[strlen(PT)-1] = '\0';
+    char PT[112] = "../yodel.mp4";
+    char CT[112] = "../yodel.mp4_enc";
+    char DT[112];
     
     if(getKey() < 0){
         printf("Enter key of proper length\n");
@@ -79,41 +174,12 @@ int main(){
     }
     createRoundKeys();
     
-    printf("PT is: ");
-    for(int i = 0; i<= strlen(PT); i++){
-        printf("%x ", PT[i]);
+    if(arguments.operation == encrypt){
+        resp = encryptPt(arguments.args[0]);
+    } else {
+        resp = decryptPt(arguments.args[0]);
     }
-    printf("\n");
-    printf("\n");
-
-    int n = encryptPt(PT, CT);
     
-    printf("CT length is: %d\n", n*16);
-    printf("CT is: %s\n", CT);
-    for(int i = 0; i<n*16 ; i++){
-        printf("%x ", CT[i]);
-    }
-    printf("\n");
-    printf("\n");
-    
-    
-    printf("Decryption:\n");
-    
-    scanf("%c", &flushe);
-    if(getKey() < 0){
-        printf("Enter key of proper length\n");
-        disposeState();
-        disposeRoundKeys();
-        exit(1);
-    }
-    decryptPt(CT, DT, n);
-    
-    printf("DT length is: %ld\n", strlen(DT));
-    printf("DT is: %s\n", DT);
-    for(int i = 0; i<n*16 ; i++){
-        printf("%x ", DT[i]);
-    }
-    printf("\n");
     disposeState();
     disposeRoundKeys();
     return 0;

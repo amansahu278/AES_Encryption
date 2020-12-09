@@ -2,6 +2,7 @@
 
 int getFirstBit(unsigned char);
 int getLastBit(unsigned char);
+int getKeyLen();
 void addRoundKey(unsigned char **);
 void subBytesRow(unsigned char *arr, int n);
 void invSubBytesRow(unsigned char *arr, int n);
@@ -18,8 +19,10 @@ void invMixColumns();
 void getWord(unsigned char **, int , unsigned char *);
 int getKey();
 void createRoundKeys();
-int encryptPt(unsigned char [], unsigned char []);
-int decryptPt(unsigned char [], unsigned char [], int);
+int encryptPt(char []);
+int decryptPt(char []);
 void initState();
 void disposeState();
 void disposeRoundKeys();
+int getNumRounds();
+int getKeyLen();
