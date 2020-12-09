@@ -3,7 +3,7 @@ AES Encryption and Decryption on any file.
 ---
 ## Description:
    ECB based AES implementation for 128 bit, 192 bit and 256 bit key length. 
-   Works almost perfectly for all files (the catch being that the decrypted file >10bytes larger than the original file.
+   Works almost perfectly for all files (the catch being that the decrypted file >10bytes larger than the original file) 
    _This is because of padding bytes that are added while encryption. This is to be fixed soon._
 
 ## Installation:
