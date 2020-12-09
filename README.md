@@ -1,11 +1,17 @@
 # AES_Encryption
 AES Encryption and Decryption on any file.
 ---
-   ECB AES implementation for 128 bit, 192 bit and 256 bit key length. Works almost perfectly for all files.
-   // Decrypting an encrypted file leads to increase in size of the decrypted file by a few bits (because of padding bits). This is to be fixed soon.
+## Description:
+   ECB based AES implementation for 128 bit, 192 bit and 256 bit key length. 
+   Works almost perfectly for all files (the catch being that the decrypted file >10bits larger than the original file.
+   _This is because of padding bits that are added while encryption. This is to be fixed soon.
 
-## How to use:
-  
+## Installation:
+   * Clone the repository
+   * cd AES_Encryption && make project
+   
+## Usage:
+   * Use ./AES --help or ./AES -h for help
 
 ### Future Works:
   1. [X] Various key sizes
