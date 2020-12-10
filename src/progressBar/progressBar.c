@@ -21,7 +21,7 @@ int showProgress(size_t count, size_t max, size_t prev)
 	}
 
 	strcpy(&buffer[prefix_length + i], suffix);
-	if(PERCENTAGE(count, max) != prev){
+	if(PERCENTAGE(count, max) != prev){	//Slowing down the number of prints on to console
 		printf("\b\r%s", buffer);
 		printf("%ld%%", PERCENTAGE(count, max));
 	}
@@ -30,7 +30,7 @@ int showProgress(size_t count, size_t max, size_t prev)
 	return PERCENTAGE(count, max);
 }
 
-void showPercentageProgress(int count, int maxCount){
+void showPercentageWithRounds(int count, int maxCount){
 	printf("\b\rProgress: %d%% Block: %d/%d", PERCENTAGE(count, maxCount), count, maxCount);
 	fflush(stdout);
 }
