@@ -166,7 +166,7 @@ int main(int argc, char **argv){
     initState();
     
     if(getKey() < 0){
-        printf("Enter key of proper length\n");
+        printf("Expected key length: %d\n", getKeyLen());
         disposeState();
         exit(1);
     }
