@@ -14,7 +14,7 @@ int check(unsigned char CT[16]){
     return 16;
 }
 
-int decryptPt(char CT[]){ //Works fine
+int decryptPt(char path[]){ //Works fine
     int len, keyIdx, n;
     int totalKeys = getNumRounds();
     int ret = 0;
@@ -22,7 +22,7 @@ int decryptPt(char CT[]){ //Works fine
     unsigned char toWrite[16];
     char destName[100] ;
 
-    FILE *in = fopen(CT, "r");
+    FILE *in = fopen(path, "r");
     if(in == NULL){
         printf("Couldn't open file.\n");
         return -1;
@@ -32,9 +32,9 @@ int decryptPt(char CT[]){ //Works fine
     n = ftell(in)/16;
     fseek(in, 0, SEEK_SET);
 
-    strncpy(destName, CT, strlen(CT)-4);
-    destName[strlen(CT)-4] = '\0';
-    printf("Decrypted filename: %s", destName);
+    strncpy(destName, path, strlen(path)-4);
+    destName[strlen(path)-4] = '\0';
+    printf("Decrypted filename: %s\n", destName);
     FILE *out = fopen(destName, "w");
 
 
