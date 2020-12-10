@@ -12,7 +12,7 @@ AES Encryption and Decryption on any file.
    
 ## Usage:
    * ./AES [-de?V] [-m INT] [--decrypt] [--encrypt] [--mode=INT] [--help] [--usage] [--version] Filepath
-   * Filepath is relative
+   * Filepath is the relative path of the file to be encrypted or decrypted
    * The defaults are encryption and 128bit mode
    * Use ./AES --help or ./AES --h for help  
    * If file name is abc.xyz, the encrypted filename will be abc.xyz_enc
