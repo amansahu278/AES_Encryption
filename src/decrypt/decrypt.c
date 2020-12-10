@@ -50,10 +50,10 @@ int decryptPt(char path[]){ //Works fine
 
     printf("Decrypting:\n");
 
-
+    int progressCounter = 0;
     for(int i = 0; i<n; i++){
         keyIdx = totalKeys-1;
-        showProgress(i+1, n);
+        progressCounter = showProgress(i+1, n, progressCounter);
         ret = fread((unsigned char *)toWrite, 1, 16, in);
         if(ret < 16){
             printf("Not sufficient characters\n");
@@ -68,12 +68,13 @@ int decryptPt(char path[]){ //Works fine
         addRoundKey(roundKeys[keyIdx --]);
         inverseShiftRows();
         invSubBytesState();
-
+        // showPercentageProgress(i, n);
         for(; keyIdx >= 1; keyIdx --){
             addRoundKey(roundKeys[keyIdx]);
             invMixColumns();
             inverseShiftRows();
             invSubBytesState();
+            // showPercentageProgress(i, n);
         }
         
         addRoundKey(roundKeys[keyIdx]);
@@ -83,6 +84,7 @@ int decryptPt(char path[]){ //Works fine
             }
         }
         fwrite((void *)toWrite, 1, 16, out);
+        // showPercentageProgress(i, n);
     }
     printf("\n");
     fclose(out);

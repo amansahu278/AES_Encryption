@@ -33,8 +33,9 @@ int encryptPt(char path[]){ //Works fine
     out = fopen(destPath, "w");
     printf("Encrypting:\n");
 
+    int progressCounter = 0;
     for(int i = 0; i<n; i++){
-        showProgress(i+1, n);
+        progressCounter = showProgress(i,n,progressCounter);
         keyIdx = 0;
         ret = fread((unsigned char *)toWrite, 1, 16, in);
         for(k = 0; k<ret; k++){
@@ -51,12 +52,12 @@ int encryptPt(char path[]){ //Works fine
         }
 
         addRoundKey(roundKeys[keyIdx ++]);
-
         for(; keyIdx < totalKeys-1; keyIdx ++){
             subBytesState();
             shiftRows();
             mixColumns();
             addRoundKey(roundKeys[keyIdx]);
+            // showPercentageProgress(i, n);
         }
      
         subBytesState();
@@ -70,7 +71,7 @@ int encryptPt(char path[]){ //Works fine
         }
         
         fwrite((void *)toWrite, 1, 16, out);
-        
+        // showPercentageProgress(i, n);
     }
     printf("\n");
     fclose(in);
