@@ -2,6 +2,7 @@
 #include<string.h>
 #include "operations.h"
 #include "constants.h"
+#include "progressBar.h"
 
 int encryptPt(char path[]){ //Works fine
     int len, n, ret, k, totalKeys, end = 0, keyIdx;
@@ -30,8 +31,10 @@ int encryptPt(char path[]){ //Works fine
     sprintf(destPath, "%s_enc", path);
     
     out = fopen(destPath, "w");
+    printf("Encrypting:\n");
 
     for(int i = 0; i<n; i++){
+        showProgress(i+1, n);
         keyIdx = 0;
         ret = fread((unsigned char *)toWrite, 1, 16, in);
         for(k = 0; k<ret; k++){
@@ -69,6 +72,7 @@ int encryptPt(char path[]){ //Works fine
         fwrite((void *)toWrite, 1, 16, out);
         
     }
+    printf("\n");
     fclose(in);
     fclose(out);
     return n;

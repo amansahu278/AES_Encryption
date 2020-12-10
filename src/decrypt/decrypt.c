@@ -2,6 +2,7 @@
 #include<string.h>
 #include "operations.h"
 #include "constants.h"
+#include "progressBar.h"
 
 int check(unsigned char CT[16]){
     for(int i = 0; i<16; i++){
@@ -47,10 +48,12 @@ int decryptPt(char path[]){ //Works fine
     printf("Decrypted filename: %s\n", destName);
     FILE *out = fopen(destName, "w");
 
+    printf("Decrypting:\n");
+
 
     for(int i = 0; i<n; i++){
         keyIdx = totalKeys-1;
-
+        showProgress(i+1, n);
         ret = fread((unsigned char *)toWrite, 1, 16, in);
         if(ret < 16){
             printf("Not sufficient characters\n");
@@ -81,6 +84,7 @@ int decryptPt(char path[]){ //Works fine
         }
         fwrite((void *)toWrite, 1, 16, out);
     }
+    printf("\n");
     fclose(out);
     fclose(in);
     return n;
