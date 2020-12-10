@@ -2,6 +2,7 @@
 #include<string.h>
 #include "operations.h"
 #include "constants.h"
+#include "progressBar.h"
 
 int check(unsigned char CT[16]){
     for(int i = 0; i<16; i++){
@@ -14,7 +15,12 @@ int check(unsigned char CT[16]){
     return 16;
 }
 
-int decryptPt(char CT[]){ //Works fine
+int islegalPath(char path[]){
+    char needle[] = "_enc";
+    return strstr(path, needle) != NULL;
+}
+
+int decryptPt(char path[]){ //Works fine
     int len, keyIdx, n;
     int totalKeys = getNumRounds();
     int ret = 0;
@@ -22,7 +28,12 @@ int decryptPt(char CT[]){ //Works fine
     unsigned char toWrite[16];
     char destName[100] ;
 
-    FILE *in = fopen(CT, "r");
+    if(!islegalPath(path)){
+        printf("Cannot decrypt such file. The encrypted file should end with _enc\n");
+        return -1;
+    }
+
+    FILE *in = fopen(path, "r");
     if(in == NULL){
         printf("Couldn't open file.\n");
         return -1;
@@ -32,15 +43,17 @@ int decryptPt(char CT[]){ //Works fine
     n = ftell(in)/16;
     fseek(in, 0, SEEK_SET);
 
-    strncpy(destName, CT, strlen(CT)-4);
-    destName[strlen(CT)-4] = '\0';
-    printf("Decrypted filename: %s", destName);
+    strncpy(destName, path, strlen(path)-4);
+    destName[strlen(path)-4] = '\0';
+    printf("Decrypted filename: %s\n", destName);
     FILE *out = fopen(destName, "w");
+
+    printf("Decrypting:\n");
 
 
     for(int i = 0; i<n; i++){
         keyIdx = totalKeys-1;
-
+        showProgress(i+1, n);
         ret = fread((unsigned char *)toWrite, 1, 16, in);
         if(ret < 16){
             printf("Not sufficient characters\n");
@@ -71,6 +84,7 @@ int decryptPt(char CT[]){ //Works fine
         }
         fwrite((void *)toWrite, 1, 16, out);
     }
+    printf("\n");
     fclose(out);
     fclose(in);
     return n;

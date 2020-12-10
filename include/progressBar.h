@@ -1,0 +1,1 @@
+void showProgress(size_t count, size_t max);

@@ -18,7 +18,7 @@ AES Encryption and Decryption on any file.
   2. [X] Change to file stream
   3. [ ] Remove padding after decryption
   4. [X] Arg parse
-  5. [ ] Add progress indicator
+  5. [X] Add progress indicator
 
 
 ## Learn to do it yourself:

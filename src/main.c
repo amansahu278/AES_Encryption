@@ -164,12 +164,10 @@ int main(int argc, char **argv){
     mode  = arguments.mode;
 
     initState();
-    char PT[112] = "../yodel.mp4";
-    char CT[112] = "../yodel.mp4_enc";
-    char DT[112];
     
     if(getKey() < 0){
-        printf("Enter key of proper length\n");
+        printf("Expected key length: %d\n", getKeyLen());
+        disposeState();
         exit(1);
     }
     createRoundKeys();
