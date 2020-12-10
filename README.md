@@ -11,6 +11,7 @@ AES Encryption and Decryption on any file.
    * cd AES_Encryption && make project
    
 ## Usage:
+   * ./AES [-de?V] [-m INT] [--decrypt] [--encrypt] [--mode=INT] [--help] [--usage] [--version] Filepath
    * Use ./AES --help or ./AES -h for help
 
 ### Future Works:
