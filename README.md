@@ -13,6 +13,9 @@ AES Encryption and Decryption on any file.
 ## Usage:
    * ./AES [-de?V] [-m INT] [--decrypt] [--encrypt] [--mode=INT] [--help] [--usage] [--version] Filepath
    * Use ./AES --help or ./AES -h for help
+   * If file name is abc.xyz, the encrypted filename will be abc.xyz_enc
+   * If the encrypted file name is abc.xyz, the decrypted filename will be abc.xyz
+   * ### IMPORTANT: if the original file and encrypted file are in the same directory, decryption of the encrypted file WILL OVERWRITE the original file. It is suggested to relocate the orginal file, or rename the original file.
 
 ### Future Works:
   1. [X] Various key sizes
