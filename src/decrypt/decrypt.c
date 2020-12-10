@@ -14,6 +14,11 @@ int check(unsigned char CT[16]){
     return 16;
 }
 
+int islegalPath(char path[]){
+    char needle[] = "_enc";
+    return strstr(path, needle) != NULL;
+}
+
 int decryptPt(char path[]){ //Works fine
     int len, keyIdx, n;
     int totalKeys = getNumRounds();
@@ -21,6 +26,11 @@ int decryptPt(char path[]){ //Works fine
 
     unsigned char toWrite[16];
     char destName[100] ;
+
+    if(!islegalPath(path)){
+        printf("Cannot decrypt such file. The encrypted file should end with _enc\n");
+        return -1;
+    }
 
     FILE *in = fopen(path, "r");
     if(in == NULL){
