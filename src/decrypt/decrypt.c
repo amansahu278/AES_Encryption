@@ -54,7 +54,7 @@ int decryptPt(char path[]){ //Works fine
     for(int i = 0; i<n; i++){
         keyIdx = totalKeys-1;
 
-        progressCounter = showProgress(i+1, n, progressCounter);
+        progressCounter = showProgress(i, n, progressCounter);
         
         ret = fread((unsigned char *)toWrite, 1, 16, in);
         if(ret < 16){
