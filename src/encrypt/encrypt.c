@@ -24,10 +24,12 @@ int encryptPt(char path[]){ //Works fine
     keyIdx = 0;
     end = 0;
     
-    if( 16 * n < len ){
-        n++;
-    }
-    
+    /*
+        if 16 divides n, then we add an entire padding block.
+        else we only add padding bits to the remaining part of the block
+    */
+    n++;
+
     unsigned char toWrite[16];
     char destPath[100];
     sprintf(destPath, "%s_enc", path);
@@ -38,8 +40,9 @@ int encryptPt(char path[]){ //Works fine
     for(int i = 0; i<n; i++){
         keyIdx = 0;
         
-        progressCounter = showProgress(i,n,progressCounter);
-        
+        // progressCounter = showProgress(i,n,progressCounter);
+        showPercentageWithRounds(i, n);
+
         ret = fread((unsigned char *)toWrite, 1, 16, in);
         for(k = 0; k<ret; k++){
             state[k%4][k/4] = toWrite[k];

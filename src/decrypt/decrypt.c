@@ -5,14 +5,11 @@
 #include "progressBar.h"
 
 int check(unsigned char CT[16]){
-    for(int i = 0; i<16; i++){
-        if(CT[i] == 0x80){
-            if(i == 15 || CT[i+1] == 0x00){
-                return i;
-            }
-        } 
-    }
-    return 16;
+    //Checks and returns number of bits to write(in the last block)
+    int i = 16;
+    while(i>=0 && CT[--i] == 0x00);
+    if(i<0 || CT[i] != 0x80) return 16;
+    return i;
 }
 
 int islegalPath(char path[]){
@@ -54,7 +51,8 @@ int decryptPt(char path[]){ //Works fine
     for(int i = 0; i<n; i++){
         keyIdx = totalKeys-1;
 
-        progressCounter = showProgress(i, n, progressCounter);
+        // progressCounter = showProgress(i, n, progressCounter);
+        showPercentageWithRounds(i, n);
         
         ret = fread((unsigned char *)toWrite, 1, 16, in);
         if(ret < 16){
@@ -84,7 +82,10 @@ int decryptPt(char path[]){ //Works fine
                 toWrite[c*4 + r] = state[r][c];
             }
         }
-        fwrite((void *)toWrite, 1, 16, out);
+        if(i==n-1)
+            fwrite((void *)toWrite, 1, check(toWrite), out);
+        else 
+            fwrite((void *)toWrite, 1, 16, out);
     }
     printf("\n");
     printf("Done!\n");
