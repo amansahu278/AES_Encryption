@@ -7,12 +7,14 @@
 int encryptPt(char path[]){ //Works fine
     int len, n, ret, k, totalKeys, end = 0, keyIdx;
     FILE *in , *out;
+    int progressCounter = 0;
     
     in = fopen(path, "r");
     if(in == NULL){
         printf("Couldn't open file.\n");
         return -1;
     }
+    
     fseek(in, 0, SEEK_END);
     len = ftell(in);
     n = len/16;
@@ -34,8 +36,10 @@ int encryptPt(char path[]){ //Works fine
     printf("Encrypting:\n");
 
     for(int i = 0; i<n; i++){
-        showProgress(i+1, n);
         keyIdx = 0;
+        
+        progressCounter = showProgress(i,n,progressCounter);
+        
         ret = fread((unsigned char *)toWrite, 1, 16, in);
         for(k = 0; k<ret; k++){
             state[k%4][k/4] = toWrite[k];
@@ -51,7 +55,6 @@ int encryptPt(char path[]){ //Works fine
         }
 
         addRoundKey(roundKeys[keyIdx ++]);
-
         for(; keyIdx < totalKeys-1; keyIdx ++){
             subBytesState();
             shiftRows();
@@ -70,9 +73,9 @@ int encryptPt(char path[]){ //Works fine
         }
         
         fwrite((void *)toWrite, 1, 16, out);
-        
     }
     printf("\n");
+    printf("Done!\n");
     fclose(in);
     fclose(out);
     return n;

@@ -5,7 +5,7 @@
 
 #define PERCENTAGE(V,T) (100 - (((T-V)*100)/T))
 
-void showProgress(size_t count, size_t max)
+int showProgress(size_t count, size_t max, size_t prev)
 {
 	const char prefix[] = "Progress: [";
 	const char suffix[] = "]";
@@ -21,9 +21,17 @@ void showProgress(size_t count, size_t max)
 	}
 
 	strcpy(&buffer[prefix_length + i], suffix);
-	printf("\b\r%c[2K\r%s", 27, buffer);
-	printf("%ld%%", PERCENTAGE(count, max));
+	if(PERCENTAGE(count, max) != prev){	//Slowing down the number of prints on to console
+		printf("\b\r%s", buffer);
+		printf("%ld%%", PERCENTAGE(count, max));
+	}
 	fflush(stdout);
 	free(buffer);
+	return PERCENTAGE(count, max);
+}
+
+void showPercentageWithRounds(int count, int maxCount){
+	printf("\b\rProgress: %d%% Block: %d/%d", PERCENTAGE(count, maxCount), count, maxCount);
+	fflush(stdout);
 }
 
