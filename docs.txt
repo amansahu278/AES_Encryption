@@ -1,3 +1,4 @@
+   How it started. 
 /*
     128 - bit AES  
     Main steps:
