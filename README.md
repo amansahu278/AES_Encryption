@@ -20,11 +20,12 @@ AES Encryption and Decryption on any file.
    * ### IMPORTANT: if the original file and encrypted file are in the same directory, decryption of the encrypted file WILL OVERWRITE the original file. It is suggested to relocate the orginal file, or rename the original file before decrypting.
 
 ### Future Works:
-  1. [X] Various key sizes
-  2. [X] Change to file stream
-  3. [ ] Remove padding after decryption
-  4. [X] Arg parse
-  5. [X] Add progress indicator
+  1. [ ] Threading?
+  2. [X] Various key sizes
+  3. [X] Change to file stream
+  4. [X] Remove padding after decryption
+  5. [X] Arg parse
+  6. [X] Add progress indicator
 
 
 ## Learn to do it yourself:
